@@ -1,6 +1,12 @@
 package trg.hadoop.retail_sales;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
@@ -10,6 +16,33 @@ import org.apache.log4j.Logger;
 
 public class RetailAggReducer extends Reducer<Text, Text, Text, Text> {
 	private static final Logger retailLogger = Logger.getLogger(RetailAggMapper.class);
+	
+	private Map<String, String> promoMap = new HashMap<String, String>();
+
+	protected void setup(Context context) throws java.io.IOException, InterruptedException{
+		
+	    File prodFile = new File("promotion.txt");
+	    FileInputStream fis = new FileInputStream(prodFile);
+	    BufferedReader reader = new BufferedReader(new InputStreamReader(fis));
+		
+		String line = reader.readLine();
+		
+		while(line != null) {
+			String[] tokens = line.split(",");
+			String promoID = tokens[0];
+			String promoName = tokens[1];
+			String promoCost = tokens[2];
+			
+			promoMap.put(promoID, promoName + "," + promoCost);
+			line = reader.readLine();
+		}
+		reader.close();
+
+		if (promoMap.isEmpty()) {
+			throw new IOException("Unable to load Product data.");
+		}
+	}
+	
 	@Override
 	protected void reduce(Text key, Iterable<Text> sales , Context context)
 			throws IOException, InterruptedException {	
@@ -50,6 +83,8 @@ public class RetailAggReducer extends Reducer<Text, Text, Text, Text> {
 			}
 		}
 		
-		context.write(new Text(keyTokens[2] + "," + keyTokens[3] + "," + keyTokens[0] + "," + keyTokens[1] + "," + totalSalesWeekdays.toString() + "," +  totalSalesWeekends.toString()), new Text());
+		String[] promoTokens = promoMap.get(keyTokens[1]).split(",");
+		
+		context.write(new Text(keyTokens[2] + "," + keyTokens[3] + "," + keyTokens[0] + "," + keyTokens[1] + "," + promoTokens[0] + "," + promoTokens[1] + "," + totalSalesWeekdays.toString() + "," +  totalSalesWeekends.toString()), new Text());
 	}
 }

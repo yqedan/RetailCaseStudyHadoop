@@ -1,6 +1,7 @@
 package trg.hadoop.retail_sales;
 
 import java.io.File;
+import java.net.URI;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
@@ -29,6 +30,22 @@ public class RetailAgg extends Configured implements Tool{
 		job.setJobName(this.getClass().getName());
 		
 		job.setJarByClass(getClass());
+		
+	    try{
+	        // DistributedCache.addCacheFile(new URI("/training/dc/product.txt#product.txt"), job.getConfiguration());
+	    	job.addCacheFile(new URI("/home/cloudera/workspace/RetailSales/data/promotion.txt#promotion.txt"));
+
+	        }catch(Exception e){
+	        	System.out.println(e);
+	        }
+		
+		
+		 URI[] cacheFiles= job.getCacheFiles();
+		 if(cacheFiles != null) {
+			 for (URI cacheFile : cacheFiles) {
+				 System.out.println("Cache file ->" + cacheFile);
+			 }
+		 } 	
 
 		// configure output and input source
 		TextInputFormat.addInputPath(job, new Path(args[0]));
