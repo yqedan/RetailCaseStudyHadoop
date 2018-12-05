@@ -21,8 +21,10 @@ public class RetailAggReducer extends Reducer<Text, Text, Text, Text> {
 
 	protected void setup(Context context) throws java.io.IOException, InterruptedException{
 		
-	    File prodFile = new File("promotion.txt");
-	    FileInputStream fis = new FileInputStream(prodFile);
+	    File promoFile = new File("promotion.txt");
+	    //File promoFile = new File("promotions_merged");
+	    
+	    FileInputStream fis = new FileInputStream(promoFile);
 	    BufferedReader reader = new BufferedReader(new InputStreamReader(fis));
 		
 		String line = reader.readLine();
@@ -50,6 +52,14 @@ public class RetailAggReducer extends Reducer<Text, Text, Text, Text> {
 		Double totalSalesWeekdays = 0.0;
 		Double totalSalesWeekends = 0.0;
 		String [] keyTokens = key.toString().split(",");
+		
+		String[] promoTokens = promoMap.get(keyTokens[1]).split(",");
+		String salesYear = keyTokens[2];
+		String salesMonth = keyTokens[3];
+		String regionId = keyTokens[0];
+		String promoId = keyTokens[1];
+		String promoName = promoTokens[0];
+		Double promoCost = Double.parseDouble(promoTokens[1]);
 		
 		for(Text sale: sales){
 			String[] tokens = sale.toString().split(",");
@@ -82,9 +92,16 @@ public class RetailAggReducer extends Reducer<Text, Text, Text, Text> {
 					retailLogger.error("day of week is in the wrong format");
 			}
 		}
-		
-		String[] promoTokens = promoMap.get(keyTokens[1]).split(",");
-		
-		context.write(new Text(keyTokens[2] + "," + keyTokens[3] + "," + keyTokens[0] + "," + keyTokens[1] + "," + promoTokens[0] + "," + promoTokens[1] + "," + totalSalesWeekdays.toString() + "," +  totalSalesWeekends.toString()), new Text());
+		totalSalesWeekdays = round(totalSalesWeekdays);
+		totalSalesWeekends = round(totalSalesWeekends);
+		promoCost = round(promoCost);
+		context.write(new Text(salesYear + "," + salesMonth + "," + regionId + "," + promoId + "," + promoName + "," + promoCost + "," + totalSalesWeekdays + "," +  totalSalesWeekends), new Text());
+	}
+	
+	private static double round(double value) {
+	    long factor = (long) Math.pow(10, 2);
+	    value = value * factor;
+	    long tmp = Math.round(value);
+	    return (double) tmp / factor;
 	}
 }

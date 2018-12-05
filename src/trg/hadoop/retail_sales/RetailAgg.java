@@ -10,6 +10,7 @@ import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
@@ -34,6 +35,7 @@ public class RetailAgg extends Configured implements Tool{
 	    try{
 	        // DistributedCache.addCacheFile(new URI("/training/dc/product.txt#product.txt"), job.getConfiguration());
 	    	job.addCacheFile(new URI("/home/cloudera/workspace/RetailSales/data/promotion.txt#promotion.txt"));
+	    	//job.addCacheFile(new URI("/user/cloudera/food_mart/promotions/promotions_merged"));
 
 	        }catch(Exception e){
 	        	System.out.println(e);
@@ -68,23 +70,15 @@ public class RetailAgg extends Configured implements Tool{
 		job.setOutputKeyClass(Text.class);
 		job.setOutputValueClass(Text.class);
 		
+		Path outputPath = new Path(args[1]);
+		
+		FileOutputFormat.setOutputPath(job, outputPath);
+
+		outputPath.getFileSystem(conf).delete(outputPath, true);
+		
 		return job.waitForCompletion(true) ? 0 : 1;
 }
-public static void main(String[] args) throws Exception {
-		File dir = new File("/home/cloudera/workspace/RetailSales/invout");
-		
-		if(dir.isDirectory() == false) {
-			System.out.println("Not a directory. Do nothing");
-		}else{
-			File[] listFiles = dir.listFiles();
-			for(File file : listFiles){
-				System.out.println("Deleting "+file.getName());
-				file.delete();
-			}
-			//now directory is empty, so we can delete it
-			System.out.println("Deleting Directory. Success = "+dir.delete());
-		}
-		
+public static void main(String[] args) throws Exception {	
 		int exitCode = ToolRunner.run(new RetailAgg(), args);
 		System.exit(exitCode);
 	}
