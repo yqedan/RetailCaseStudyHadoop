@@ -14,7 +14,7 @@ import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.Reducer.Context;
 import org.apache.log4j.Logger;
 
-public class RetailAggReducer extends Reducer<Text, Text, Text, Text> {
+public class RetailAggReducer extends Reducer<Text, SaleRecordWritable, Text, Text> {
 	private static final Logger retailLogger = Logger.getLogger(RetailAggMapper.class);
 	
 	private Map<String, String> promoMap = new HashMap<String, String>();
@@ -46,7 +46,7 @@ public class RetailAggReducer extends Reducer<Text, Text, Text, Text> {
 	}
 	
 	@Override
-	protected void reduce(Text key, Iterable<Text> sales , Context context)
+	protected void reduce(Text key, Iterable<SaleRecordWritable> sales , Context context)
 			throws IOException, InterruptedException {	
 		
 		Double totalSalesWeekdays = 0.0;
@@ -61,10 +61,9 @@ public class RetailAggReducer extends Reducer<Text, Text, Text, Text> {
 		String promoName = promoTokens[0];
 		Double promoCost = Double.parseDouble(promoTokens[1]);
 		
-		for(Text sale: sales){
-			String[] tokens = sale.toString().split(",");
-			Double totalSales = Double.parseDouble(tokens[0]);
-			String dayOfWeek = tokens[1].toString();
+		for(SaleRecordWritable sale: sales){
+			Double totalSales = sale.getSales().get();
+			String dayOfWeek = sale.getDay().toString();
 						
 			switch(dayOfWeek){
 				case "Monday":

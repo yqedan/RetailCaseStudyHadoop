@@ -65,7 +65,7 @@ public class RetailAgg extends Configured implements Tool{
 
 		// configure output
 		job.setMapOutputKeyClass(Text.class);
-		job.setMapOutputValueClass(Text.class);
+		job.setMapOutputValueClass(SaleRecordWritable.class);
 		
 		job.setOutputKeyClass(Text.class);
 		job.setOutputValueClass(Text.class);
