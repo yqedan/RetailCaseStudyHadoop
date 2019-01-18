@@ -34,9 +34,10 @@ public class RetailAgg extends Configured implements Tool{
 		
 	    try{
 	        // DistributedCache.addCacheFile(new URI("/training/dc/product.txt#product.txt"), job.getConfiguration());
-	    	job.addCacheFile(new URI("/home/cloudera/workspace/RetailSales/data/promotion.txt#promotion.txt"));
+	    	//job.addCacheFile(new URI("/home/cloudera/workspace/RetailSales/data/promotion.txt#promotion.txt"));
 	    	//job.addCacheFile(new URI("/user/cloudera/food_mart/promotions/promotions_merged"));
-
+	    	job.addCacheFile(new URI("/user/yusuf9191/food_mart/promotions/promotions_merged"));
+	    	
 	        }catch(Exception e){
 	        	System.out.println(e);
 	        }

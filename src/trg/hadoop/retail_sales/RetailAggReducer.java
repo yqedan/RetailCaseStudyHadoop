@@ -21,8 +21,8 @@ public class RetailAggReducer extends Reducer<Text, SaleRecordWritable, Text, Te
 
 	protected void setup(Context context) throws java.io.IOException, InterruptedException{
 		
-	    File promoFile = new File("promotion.txt");
-	    //File promoFile = new File("promotions_merged");
+	    //File promoFile = new File("promotion.txt");
+	    File promoFile = new File("promotions_merged");
 	    
 	    FileInputStream fis = new FileInputStream(promoFile);
 	    BufferedReader reader = new BufferedReader(new InputStreamReader(fis));
